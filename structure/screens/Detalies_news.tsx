@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: RFValue(250),
     marginTop: RFValue(20),
-    // backgroundColor:"red"
   },
   Image_style: {
     width: '100%',

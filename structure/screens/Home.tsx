@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
   Text,
+  ActivityIndicator,RefreshControl
 } from 'react-native';
 import COLORS from '../constants/thems';
 import SharedStyles from '../constants/Share_style';
@@ -18,28 +19,28 @@ import {useSelector, useDispatch} from 'react-redux';
 
 function Home(_props: any) {
   const navigation: any = useNavigation();
-const [x ,setx] = useState(true)
   const [news_array, setnews_array] = useState();
 
   const state = useSelector((state: any) => state.Dark.Color);
   
-  const lang =  useSelector((state :any) => state.Langauge.language)
+  const lang:string =  useSelector((state :any) => state.Langauge.language)
   const [keySearch, setkeySearch] = useState('');
+
+  const [refreshing ,setrefreshing] = useState(false); 
   useEffect(() => {
-  
+  setrefreshing(true)
     data_fun();
    
-    console.log('ahmed');
-  }, []);
+  }, [lang]);
 
   const data_fun = async () => {
     try {
       const getdata: any = await fetch(
-        `https://newsapi.org/v2/everything?q=20%&apiKey=a08925364a4141f2a56a92bb5d97759b`,
+        `https://newsapi.org/v2/everything?q=20%&language=${lang}&apiKey=219e951344c34992855c717adffa06f7`,
       );
       const data: any = await getdata.json();
       setnews_array(data.articles);
-      console.log(data.articles);
+      setrefreshing(false)
     } catch (error) {
       console.log(error);
     }
@@ -48,11 +49,10 @@ const [x ,setx] = useState(true)
   const search_fun = async (keySearch: string) => {
     try {
       const getdata: any = await fetch(
-        `https://newsapi.org/v2/everything?q="${keySearch}"&language="${lang}"&searchIn=title&apiKey=a08925364a4141f2a56a92bb5d97759b`,
+        `https://newsapi.org/v2/everything?q="${keySearch}"&searchIn=title&apiKey=219e951344c34992855c717adffa06f7`,
       );
       const data: any = await getdata.json();
       setnews_array(data.articles);
-      console.log(data.articles);
     } catch (error) {
       console.log(error);
     }
@@ -65,10 +65,13 @@ const [x ,setx] = useState(true)
           SharedStyles.screenContainer,
           {backgroundColor: state ? COLORS.black : COLORS.white},
         ]}>
+          { news_array?(
         <FlatList
           data={news_array}
           refreshing={true}
-          // onRefresh={()=>{return false}}
+          refreshControl={
+            <RefreshControl colors={["#0ff", "#689f38"]} refreshing={refreshing} onRefresh={data_fun} />
+          }
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <View>
@@ -107,7 +110,7 @@ const [x ,setx] = useState(true)
                     style={style.text_input}
                     placeholder={'Search'}
                     placeholderTextColor={'#000'}
-                    multiline={true}
+                    multiline={false}
                     value={keySearch}
                     onChangeText={value => {
                       setTimeout(() => {
@@ -130,7 +133,7 @@ const [x ,setx] = useState(true)
                style={style.text_input}
                placeholder={'بحث'}
                placeholderTextColor={'#000'}
-               multiline={true}
+               multiline={false}
                value={keySearch}
                onChangeText={value => {
                  setTimeout(() => {
@@ -186,6 +189,9 @@ const [x ,setx] = useState(true)
             />
           )}
         />
+          ):(
+            <ActivityIndicator color ="#f00" size={RFValue(30)} style={{alignSelf:'center',marginTop:RFValue(200)}}/>
+          )}
       </SafeAreaView>
     </>
   );
